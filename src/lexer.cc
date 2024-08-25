@@ -209,6 +209,10 @@ namespace esquema {
         return m_txt;
     }
 
+    Token::Type Token::type() const noexcept {
+        return m_type;
+    }
+
     Token::Token(Token::Type type, std::string_view txt) 
         : m_txt{txt}, m_type{type}
     { }
