@@ -1,6 +1,7 @@
 target_sources(
     esquema
 PRIVATE
+    interp.hh interp.cc
     lexer.hh lexer.cc
     parser.hh parser.cc
     main.cc

@@ -2,10 +2,11 @@
 #define ESQUEMA_PARSER_HH_INCLUDED
 
 #include "lexer.hh"
+#include <list>
+#include <memory>
 #include <optional>
 #include <string>
 #include <variant>
-#include <list>
 
 namespace esquema {
     class Symbol {
@@ -37,8 +38,9 @@ namespace esquema {
 
     class Cell;
     using List = std::list<Cell>;
-    
-    using Proc = Cell(*)(List const &);
+   
+    class Environment;
+    using Proc = Cell(*)(List const &, std::shared_ptr<Environment>);
 
     class Nil {};
 
