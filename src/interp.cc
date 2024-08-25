@@ -46,7 +46,7 @@ namespace esquema {
     }
 
     const_iterator Environment::find(Symbol const & sym) const noexcept {
-        auto it = m_inner.find(sym.str());
+        auto it = m_inner.find(sym.value());
         if (it == std::end(m_inner) && m_outer) {
            it = m_outer->find(sym); 
         }
@@ -56,7 +56,7 @@ namespace esquema {
 
     iterator Environment::insert(Symbol const & sym, Cell const & cell) {
         auto ptr = std::make_shared<Cell>(cell);
-        auto [it, inserted] = m_inner.insert({sym.str(), ptr});
+        auto [it, inserted] = m_inner.insert({sym.value(), ptr});
         if (!inserted) {
             it->second = std::move(ptr);
         }
@@ -74,7 +74,7 @@ namespace esquema {
             }
 
             m_inner.emplace(
-                std::get<Symbol>(*sym_it).str(), 
+                std::get<Symbol>(*sym_it).value(), 
                 std::make_shared<Cell>(*cell_it++)
             );
         }

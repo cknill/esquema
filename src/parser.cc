@@ -1,6 +1,11 @@
 #include "parser.hh"
+#include <ostream>
 #include <stdexcept>
 #include <sstream>
+
+namespace {
+    using namespace std::literals::string_view_literals;
+}
 
 namespace esquema {
     Cell Parser::parse(std::string_view src) {
@@ -17,7 +22,7 @@ namespace esquema {
             while (cur != Token::Type::RPar) {
                 if (cur == Token::Type::Eof) {
                     std::ostringstream msg{};
-                    msg << "Unexpected EOF near "
+                    msg << "Unexpected EOF near "sv
                         << m_lexer.row() << '-' << m_lexer.col();
 
                     throw std::runtime_error{msg.str()};
@@ -32,14 +37,28 @@ namespace esquema {
 
         else if (cur == Token::Type::RPar) {
             std::ostringstream msg{};
-            msg << "Unexpected ')' near "
+            msg << "Unexpected ')' near "sv
                 << m_lexer.row() << '-' << m_lexer.col();
 
             throw std::runtime_error{msg.str()};
         }
 
         else if (cur == Token::Type::Num) {
-            auto atom = Number{cur.strview()};
+            auto value = 0.0D;
+            try {
+                value = std::stod(cur.str());
+            }
+
+            catch (std::exception const & ex) {
+                std::ostringstream msg{};
+                msg << "Invalid number '"sv << cur.strview()
+                    << "' near "sv << m_lexer.row() << '-'
+                    << m_lexer.col();
+
+                throw std::runtime_error{msg.str()};
+            }
+
+            auto atom = Number{value};
             cur = m_lexer.next();
 
             return std::move(atom);
@@ -54,21 +73,21 @@ namespace esquema {
 
         else {
             std::ostringstream msg{};
-            msg << "Unexpected token '" << cur.type() << "' near "
+            msg << "Unexpected token '"sv << cur.type() << "' near "sv
                 << m_lexer.row() << '-' << m_lexer.col();
             throw std::runtime_error{msg.str()};
         }
+    }
+
+    std::ostream & operator<<(std::ostream & ostr, Symbol const & sym) {
+        return ostr << sym.m_value;
     }
 
     bool Symbol::operator==(std::string_view value) const noexcept {
         return m_value == value;
     }
 
-    std::string_view Symbol::strview() const noexcept {
-        return m_value;
-    }
-
-    std::string const & Symbol::str() const noexcept {
+    std::string const & Symbol::value() const noexcept {
         return m_value;
     }
 
@@ -76,17 +95,25 @@ namespace esquema {
         : m_value{value}
     { }
 
-    std::string_view Number::strview() const noexcept {
+    std::ostream & operator<<(std::ostream & ostr, Number const & num) {
+        return ostr << num.m_value;
+    }
+
+    double Number::value() const noexcept {
         return m_value;
     }
 
-    std::string const & Number::str() const noexcept {
-        return m_value;
-    }
-
-    Number::Number(std::string_view value) 
+    Number::Number(double value) 
         : m_value{value}
     { }
+
+    std::ostream & operator<<(std::ostream & ostr, Nil) {
+        return ostr << "Nil"sv;
+    }
+
+    std::ostream & operator<<(std::ostream & ostr, Proc) {
+        return ostr << "Proc"sv;
+    }
 
     bool Cell::is_nil() const noexcept {
         return std::holds_alternative<Nil>(*this);

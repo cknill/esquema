@@ -2,6 +2,7 @@
 #define ESQUEMA_PARSER_HH_INCLUDED
 
 #include "lexer.hh"
+#include <iosfwd>
 #include <list>
 #include <memory>
 #include <optional>
@@ -11,11 +12,13 @@
 namespace esquema {
     class Symbol {
     public:
+        friend std::ostream & operator<<(std::ostream & ostr, Symbol const & sym);
+
+    public:
         bool operator==(std::string_view value) const noexcept;
 
     public:
-        std::string_view strview() const noexcept;
-        std::string const & str() const noexcept;
+        std::string const & value() const noexcept;
 
     public:
         explicit Symbol(std::string_view value);
@@ -26,25 +29,35 @@ namespace esquema {
 
     class Number {
     public:
-        std::string_view strview() const noexcept;
-        std::string const & str() const noexcept;
+        friend std::ostream & operator<<(std::ostream & ostr, Number const & num);
 
     public:
-        explicit Number(std::string_view value);
+        double value() const noexcept;
+
+    public:
+        explicit Number(double value);
 
     private:
-        std::string m_value;
+        double m_value;
     };
 
     class Cell;
     using List = std::list<Cell>;
-   
+    std::ostream & operator<<(std::ostream & ostr, List const & list);
+
+
     class Environment;
     using Proc = Cell(*)(List const &, std::shared_ptr<Environment>);
+    std::ostream & operator<<(std::ostream & ostr, Proc);
+
 
     class Nil {};
+    std::ostream & operator<<(std::ostream & ostr, Nil);
 
     class Cell : public std::variant<Nil, Symbol, Number, List, Proc> {
+    public:
+        friend std::ostream & operator<<(std::ostream & ostr, Cell const & cell);
+
     public:
         bool is_nil() const noexcept;
         bool is_symbol() const noexcept;
