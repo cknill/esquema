@@ -115,6 +115,46 @@ namespace esquema {
         return ostr << "Proc"sv;
     }
 
+    std::ostream & operator<<(std::ostream & ostr, List const & list) {
+        ostr << '(';
+        if (list.empty()) {
+            return ostr << ')';
+        }
+
+        else if (list.size() == 1) {
+            return ostr << list.front() << ')';
+        }
+
+        else {
+            auto last_elem = --list.end();
+            for (auto it = std::begin(list); it != last_elem; ++it) {
+                ostr << *it << ',';
+            }
+
+            return ostr << *last_elem << ')';
+        }
+    }
+
+    std::ostream & operator<<(std::ostream & ostr, Cell const & cell) {
+        if (auto ptr = std::get_if<Nil>(&cell)) {
+            ostr << *ptr;
+        }
+        else if (auto ptr = std::get_if<Symbol>(&cell)) {
+            ostr << *ptr;
+        }
+        else if (auto ptr = std::get_if<Number>(&cell)) {
+            ostr << *ptr;
+        }
+        else if (auto ptr = std::get_if<List>(&cell)) {
+            ostr << *ptr;
+        }
+        else if (auto ptr = std::get_if<Proc>(&cell)) {
+            ostr << *ptr;
+        }
+
+        return ostr;
+    }
+
     bool Cell::is_nil() const noexcept {
         return std::holds_alternative<Nil>(*this);
     }
