@@ -122,11 +122,14 @@ namespace esquema {
         throw std::runtime_error{"Not a procedure"};
     }
 
+    // Make an interpreter with the default global environment
     Interpreter::Interpreter()
         : m_env{Environment::make_global()}
         , m_parser{}
     { }
 
+
+    // The global environment in all its glory
     Environment Environment::make_global() {
         auto env = Environment{};
         env.m_inner = {{

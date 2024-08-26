@@ -49,6 +49,8 @@ namespace esquema {
         return m_col;
     }
 
+    // See https://conservatory.scheme.org/schemers/Documents/Standards/R5RS/HTML/r5rs-Z-H-5.html#%_sec_2.1
+    // for the definition of an identifier
     Token Lexer::scan_id() {
         auto anchor = m_cursor;
         advance();
@@ -56,6 +58,8 @@ namespace esquema {
         return Token{Token::Type::Id, std::string_view(anchor, m_cursor)};
     }
 
+    // Partial implementation of Scheme's numbers
+    // recognizes the following: (+/-)?123, (+/-)?0.123, (+/-)?.123
     Token Lexer::scan_number() {
         auto anchor = m_cursor;
         auto c = peek();
@@ -83,6 +87,12 @@ namespace esquema {
         return Token{Token::Type::Num, std::string_view(anchor, m_cursor)};
     }
 
+    // TODO - rename this member function because I completely forgot that
+    // symbols are a thing in scheme. Rename to scan_punc or something like
+    // that. 
+
+    // Scans characters that aren't initially part of a number or id
+    // throws if the character isn't recognized.
     Token Lexer::scan_symbol() {
         auto c = peek();
         if (*c == '(') {
@@ -123,6 +133,7 @@ namespace esquema {
         }
     }
 
+    // Tests if the character can be the start of an identifier
     bool Lexer::is_initial_id(char c) noexcept {
         return std::isalpha(c) ||
                c == '!' || c == '$' || c == '%' || c == '&' ||
@@ -131,6 +142,8 @@ namespace esquema {
                c == '_' || c == '^';
     }
 
+    // Tests if the charcter can be the subsequent letters
+    // of an identifier
     bool Lexer::is_subsequent_id(char c) noexcept {
         return std::isalnum(c) ||
                c == '!' || c == '$' || c == '%' || c == '&' ||
@@ -140,10 +153,12 @@ namespace esquema {
                c == '-';
     }
 
+    // Tests if the character can start a number
     bool Lexer::is_number(char c) noexcept {
         return std::isdigit(c) || c == '+' || c == '-' || c == '.';
     }
 
+    // These are the valid characters for a boolean
     bool Lexer::is_bool(char c) noexcept {
         switch (c) {
             case 't': case 'T': case 'f': case 'F':
@@ -179,6 +194,9 @@ namespace esquema {
         }
     }
 
+    // May shift the buffer pointer as long as there is
+    // runway left. It also does row and column bookkeeping
+    // No attempt is made to handle Windows line endings.
     void Lexer::advance() noexcept {
         if (!is_eof()) {
             if (auto c = peek(); c && *c == '\n') {
@@ -223,6 +241,7 @@ namespace esquema {
         return ostr << token.m_type << ' ' << token.m_txt;
     }
 
+    // Some convenience operators for Tokens
     bool Token::operator==(std::string_view txt) const noexcept {
         return m_txt == txt;
     }

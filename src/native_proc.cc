@@ -6,6 +6,10 @@
 #include <limits>
 
 namespace {
+    // TODO - I think I can do better than this. It was
+    // really late at night and I wanted to finish so
+    // this is what came out. Please don't judge me too
+    // harshly.
     template <typename It, typename Op>
     esquema::Cell acc_op(It it, It last, double acc, Op op) {
         while (it != last) {
@@ -88,6 +92,8 @@ namespace esquema {
         );
     }
 
+    // TODO - I think there's something wrong with this one
+    // I know division is a tricky operation
     Cell div(List const & args, Environment * env) {
         if (args.size() < 2) {
             throw std::runtime_error{"Too few arguments: / requires at least two"};
@@ -157,6 +163,8 @@ namespace esquema {
         );
     }
 
+    // The definition of equivalence in Scheme is here:
+    // https://conservatory.scheme.org/schemers/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_sec_6.1
     Cell equal(List const & args, Environment * env) {
         if (args.size() != 2) {
             throw std::runtime_error{"eqv? takes exactly two arguments"};
@@ -186,6 +194,8 @@ namespace esquema {
         return Bool{result};
     }
 
+    // How Scheme coerces types into Booleans is detailed here
+    // https://conservatory.scheme.org/schemers/Documents/Standards/R5RS/HTML/r5rs-Z-H-9.html#%_sec_6.3.1
     Cell negate(List const & args, Environment * env) {
         if (args.size() != 1) {
             throw std::runtime_error{"not? takes just one argument"};

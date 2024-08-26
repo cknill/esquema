@@ -2,6 +2,7 @@
 #include <ostream>
 #include <stdexcept>
 #include <sstream>
+
 namespace {
     using namespace std::literals::string_view_literals;
 }
@@ -9,6 +10,8 @@ namespace {
 namespace esquema {
     Cell Parser::parse(std::string_view src) {
         m_lexer = Lexer{src};
+        // Just in case the string is empty. I take
+        // care of this in main.cc
         if (src.empty()) {
             return Nil{};
         }
@@ -17,7 +20,8 @@ namespace esquema {
         auto result = parse_cell(cur);
         if (cur != Token::Type::Eof) {
             std::ostringstream msg{};
-            msg << "Malformed expression";
+            msg << "Malformed expression near "
+                << m_lexer.row() << '-' << m_lexer.col();
 
             throw std::runtime_error{msg.str()};
         }
@@ -45,6 +49,8 @@ namespace esquema {
             return std::move(list);
         }
 
+        // Just in case we come across a wayward ')'
+        // the function above consumes any matched parens
         else if (cur == Token::Type::RPar) {
             std::ostringstream msg{};
             msg << "Unexpected ')' near "sv
@@ -53,6 +59,8 @@ namespace esquema {
             throw std::runtime_error{msg.str()};
         }
 
+        // Do the conversion here to take advantage
+        // of row and column information
         else if (cur == Token::Type::Num) {
             auto value = 0.0D;
             try {
