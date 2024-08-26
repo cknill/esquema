@@ -16,22 +16,25 @@ namespace esquema {
     }
 
     Cell Interpreter::eval(Cell const & cell) {
-        if (cell.is_nil()) {
+        // no need to evaluate just return them
+        if (cell.is_nil() || cell.is_number() || cell.is_bool()) {
             return cell;
         }
 
-        else if (cell.is_number()) {
-            return cell;
-        }
-
+        // the other atom does need to be resolved
         else if (cell.is_symbol()) {
             auto const & name = std::get<Symbol>(cell).value();
             auto it = m_env.find(name);
             if (it != m_env.end()) {
                 return it->second;
             }
+
             else {
-                return Nil{}; 
+                std::ostringstream msg{};
+                msg << "Dereferenced unbound variable '"
+                    << name << "'";
+
+                throw std::runtime_error{msg.str()};
             }
         }
 
@@ -74,7 +77,7 @@ namespace esquema {
                 }
                 auto it = ++list.begin();
                 auto cond = eval(*it++);
-                if (!cond.is_number()) {
+                if (!cond.is_bool()) {
                     throw std::runtime_error{"if condition must evaluate to boolean"};
                 }
 
@@ -84,12 +87,12 @@ namespace esquema {
                     false_path = *it++;
                 }
 
-                if (std::get<Number>(cond).value()) {
+                if (std::get<Bool>(cond).value()) {
                     return eval(true_path);
                 }
 
                 else {
-                    eval(false_path);
+                    return eval(false_path);
                 }
             }
 
@@ -127,10 +130,13 @@ namespace esquema {
     Environment Environment::make_global() {
         auto env = Environment{};
         env.m_inner = {{
-            { "+"s, add }, { "-"s, sub }, { "*"s, mul }, { "/"s, div },
-            { "pi"s, Cell{Number{std::numbers::pi}}},
+            { "+"s, add }, { "-"s, sub }, 
+            { "*"s, mul }, { "/"s, div },
+            { "<"s, less }, { "<="s, less_equal }, 
+            { ">"s, greater }, { ">="s, greater_equal },
+            { "eqv?"s, equal }, { "not", negate }, 
+            { "pi"s, Cell{Number{std::numbers::pi}} },
             { "e"s, Cell{Number{std::numbers::e}} },
-            { "nil"s, Cell{Nil{}} },
         }};
 
         return env;

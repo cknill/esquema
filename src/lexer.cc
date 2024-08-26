@@ -93,6 +93,23 @@ namespace esquema {
             return Token{Token::Type::RPar};
         }
 
+        else if (*c == '#') {
+            auto const * anchor = m_cursor;
+            auto row = m_row;
+            auto col = m_col;
+            advance();
+            if (c && is_bool(*c)) {
+                advance();
+                return Token{Token::Type::Bool, std::string_view(anchor, m_cursor)};
+            }
+
+            std::ostringstream msg{};
+            msg << "Encountered unknown character '#' near "
+                << row << '-' << col;
+            
+            throw std::runtime_error{msg.str()};
+        }
+
         else {
             std::ostringstream msg{};
             msg << "Encountered unknown character '"
@@ -122,6 +139,10 @@ namespace esquema {
 
     bool Lexer::is_number(char c) noexcept {
         return std::isdigit(c) || c == '+' || c == '-' || c == '.';
+    }
+
+    bool Lexer::is_bool(char c) noexcept {
+        return c == 't' || c == 'T' || c == 'f' || c == 'F';
     }
 
     void Lexer::consume_ws() noexcept {
@@ -181,6 +202,7 @@ namespace esquema {
             case LPar: ostr << "LPar"; break;
             case RPar: ostr << "RPar"; break;
             case Num: ostr << "Num"; break;
+            case Bool: ostr << "Bool"; break;
             case Id: ostr << "Id"; break;
             case Eof: ostr << "Eof"; break;
             default: ostr << "Err";

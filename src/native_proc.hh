@@ -9,7 +9,12 @@ namespace esquema {
     Cell sub(List const & args, Environment * env);
     Cell mul(List const & args, Environment * env);
     Cell div(List const & args, Environment * env);
-    Cell define(List const & args, Environment * env);
+    Cell less(List const & args, Environment * env);
+    Cell less_equal(List const & args, Environment * env);
+    Cell greater(List const & args, Environment * env);
+    Cell greater_equal(List const & args, Environment * env);
+    Cell equal(List const & args, Environment * env);
+    Cell negate(List const & args, Environment * env);
 }
 
 #endif

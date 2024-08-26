@@ -27,6 +27,21 @@ namespace esquema {
         std::string m_value;
     };
 
+    class Bool {
+    public:
+        friend std::ostream & operator<<(std::ostream & ostr, Bool const & bool_);
+
+    public:
+        bool value() const noexcept;
+
+    public:
+        explicit Bool(std::string_view value);
+        explicit Bool(bool value);
+
+    private:
+        bool m_value;
+    };
+
     class Number {
     public:
         friend std::ostream & operator<<(std::ostream & ostr, Number const & num);
@@ -50,11 +65,10 @@ namespace esquema {
     using Proc = Cell(*)(List const &, Environment *);
     std::ostream & operator<<(std::ostream & ostr, Proc);
 
-
     class Nil {};
     std::ostream & operator<<(std::ostream & ostr, Nil);
 
-    class Cell : public std::variant<Nil, Symbol, Number, List, Proc> {
+    class Cell : public std::variant<Nil, Symbol, Bool, Number, List, Proc> {
     public:
         friend std::ostream & operator<<(std::ostream & ostr, Cell const & cell);
 
@@ -62,6 +76,7 @@ namespace esquema {
         bool is_nil() const noexcept;
         bool is_symbol() const noexcept;
         bool is_number() const noexcept;
+        bool is_bool() const noexcept;
         bool is_atom() const noexcept;
         bool is_list() const noexcept;
         bool is_proc() const noexcept;

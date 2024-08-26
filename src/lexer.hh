@@ -9,7 +9,7 @@ namespace esquema {
     class Token {
     public:
         enum class Type : unsigned char {
-            LPar, RPar, Num, Id, Eof, Err = 255
+            LPar, RPar, Bool, Num, Id, Eof, Err = 255
         };
 
     public:
@@ -76,6 +76,7 @@ namespace esquema {
         static bool is_initial_id(char c) noexcept;
         static bool is_subsequent_id(char c) noexcept;
         static bool is_number(char c) noexcept;
+        static bool is_bool(char c) noexcept;
 
     private:
         char const * m_cursor;

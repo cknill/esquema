@@ -73,6 +73,13 @@ namespace esquema {
             return std::move(atom);
         }
 
+        else if (cur == Token::Type::Bool) {
+            auto atom = Bool{cur.strview()};
+            cur = m_lexer.next();
+            
+            return std::move(atom);
+        }
+
         else if (cur == Token::Type::Id) {
             auto atom = Symbol{cur.strview()};
             cur = m_lexer.next();
@@ -101,6 +108,31 @@ namespace esquema {
     }
 
     Symbol::Symbol(std::string_view value)
+        : m_value{value}
+    { }
+
+    std::ostream & operator<<(std::ostream & ostr, Bool const & bool_) {
+        if (bool_.m_value) {
+            return ostr << "#t";
+        }
+        else {
+            return ostr << "#f";
+        }
+    }
+
+    bool Bool::value() const noexcept {
+        return m_value;
+    }
+
+    Bool::Bool(std::string_view value)
+        : m_value{false}
+    {
+        if (value == "#t" || value == "#T") {
+            m_value = true;
+        }
+    }
+
+    Bool::Bool(bool value)
         : m_value{value}
     { }
 
@@ -151,6 +183,9 @@ namespace esquema {
         else if (auto ptr = std::get_if<Symbol>(&cell)) {
             ostr << *ptr;
         }
+        else if (auto ptr = std::get_if<Bool>(&cell)) {
+            ostr << *ptr;
+        }
         else if (auto ptr = std::get_if<Number>(&cell)) {
             ostr << *ptr;
         }
@@ -172,12 +207,16 @@ namespace esquema {
         return std::holds_alternative<Symbol>(*this);
     }
 
+    bool Cell::is_bool() const noexcept {
+        return std::holds_alternative<Bool>(*this);
+    }
+
     bool Cell::is_number() const noexcept {
         return std::holds_alternative<Number>(*this);
     }
 
     bool Cell::is_atom() const noexcept {
-        return is_symbol() || is_number();
+        return is_symbol() || is_bool() || is_number();
     }
 
     bool Cell::is_list() const noexcept {
