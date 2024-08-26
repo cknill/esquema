@@ -25,3 +25,11 @@ target_link_libraries(
 PRIVATE
     linenoise
 )
+
+if (ESQUEMA_BUILD_TESTS)
+    target_link_libraries(
+        esquema
+    PRIVATE
+        doctest
+    )
+endif()
