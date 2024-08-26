@@ -1,3 +1,0 @@
-[submodule "3rd_party/cpp-linenoise"]
-	path = 3rd_party/cpp-linenoise
-	url = https://github.com/yhirose/cpp-linenoise
