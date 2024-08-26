@@ -18,6 +18,16 @@ namespace esquema {
             cur = peek();
         }
 
+        else if (*cur == ';') {
+            consume_comment();
+            consume_ws();
+            if (is_eof()) {
+                return Token{Token::Type::Eof};
+            }
+
+            cur = peek();
+        }
+
         if (is_initial_id(*cur)) {
             return scan_id();
         }
@@ -75,14 +85,6 @@ namespace esquema {
 
     Token Lexer::scan_symbol() {
         auto c = peek();
-        if (*c == ';') {
-            consume_comment();
-            c = peek();
-            if (!c) {
-                return Token{Token::Type::Eof};
-            }
-        }
-
         if (*c == '(') {
             advance();
             return Token{Token::Type::LPar};
@@ -98,6 +100,7 @@ namespace esquema {
             auto row = m_row;
             auto col = m_col;
             advance();
+            c = peek();
             if (c && is_bool(*c)) {
                 advance();
                 return Token{Token::Type::Bool, std::string_view(anchor, m_cursor)};
@@ -142,7 +145,12 @@ namespace esquema {
     }
 
     bool Lexer::is_bool(char c) noexcept {
-        return c == 't' || c == 'T' || c == 'f' || c == 'F';
+        switch (c) {
+            case 't': case 'T': case 'f': case 'F':
+                return true;
+            default:
+                return false;
+        }
     }
 
     void Lexer::consume_ws() noexcept {

@@ -142,29 +142,27 @@ namespace esquema {
         return env;
     }
 
-    using iterator = Environment::iterator;
-    iterator Environment::begin() noexcept {
+    Environment::iterator Environment::begin() noexcept {
         return m_inner.begin();
     }
 
-    iterator Environment::end() noexcept {
+    Environment::iterator Environment::end() noexcept {
         return m_inner.end();
     }
 
-    using const_iterator = Environment::const_iterator;
-    const_iterator Environment::begin() const noexcept {
+    Environment::const_iterator Environment::begin() const noexcept {
         return m_inner.begin();
     }
 
-    const_iterator Environment::end() const noexcept {
+    Environment::const_iterator Environment::end() const noexcept {
         return m_inner.end();
     }
 
-    const_iterator Environment::find(Symbol const & sym) const noexcept {
+    Environment::const_iterator Environment::find(Symbol const & sym) const noexcept {
         return find(sym.value());
     }
 
-    const_iterator Environment::find(std::string const & name) const noexcept {
+    Environment::const_iterator Environment::find(std::string const & name) const noexcept {
         auto it = m_inner.find(name);
         if (it == std::end(m_inner) && m_outer) {
             it = m_outer->find(name);
@@ -173,7 +171,7 @@ namespace esquema {
         return it;
     }
 
-    iterator Environment::insert(Symbol const & sym, Cell const & cell) {
+    Environment::iterator Environment::insert(Symbol const & sym, Cell const & cell) {
         auto [it, inserted] = m_inner.insert({sym.value(), cell});
         if (!inserted) {
             it->second = cell;
