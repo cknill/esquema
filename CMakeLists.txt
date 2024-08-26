@@ -34,4 +34,4 @@ if (ESQUEMA_BUILD_TESTS)
 endif()
 
 include(GNUInstallDirs)
-
+install(TARGETS esquema DESTINATION bin)
