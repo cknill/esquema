@@ -2,17 +2,27 @@
 #include <ostream>
 #include <stdexcept>
 #include <sstream>
-
 namespace {
     using namespace std::literals::string_view_literals;
 }
 
 namespace esquema {
     Cell Parser::parse(std::string_view src) {
-        auto cells = List{};
         m_lexer = Lexer{src};
+        if (src.empty()) {
+            return Nil{};
+        }
+
         auto cur = m_lexer.next();
-        return parse_cell(cur);
+        auto result = parse_cell(cur);
+        if (cur != Token::Type::Eof) {
+            std::ostringstream msg{};
+            msg << "Malformed expression";
+
+            throw std::runtime_error{msg.str()};
+        }
+
+        return result;
     }
 
     Cell Parser::parse_cell(Token & cur) {
@@ -60,7 +70,6 @@ namespace esquema {
 
             auto atom = Number{value};
             cur = m_lexer.next();
-
             return std::move(atom);
         }
 

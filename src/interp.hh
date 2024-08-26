@@ -9,7 +9,7 @@ namespace esquema {
     class Environment {
     private:
         using container_type = std::unordered_map<
-            std::string, std::shared_ptr<Cell>
+            std::string, Cell
         >;
 
     public:
@@ -26,15 +26,15 @@ namespace esquema {
 
     public:
         const_iterator find(Symbol const & symbol) const noexcept;
+        const_iterator find(std::string const & name) const noexcept;
         iterator insert(Symbol const & symbol, Cell const & cell);
 
     public:
-        Environment(List const & args, List const & params, std::shared_ptr<Environment> outer);
-        explicit Environment(std::shared_ptr<Environment> outer = nullptr);
+        explicit Environment(Environment * outer = nullptr);
 
     private:
-        std::unordered_map<std::string, std::shared_ptr<Cell>> m_inner;
-        std::shared_ptr<Environment> m_outer;
+        container_type m_inner;
+        Environment * m_outer;
     };
 
     class Interpreter {
@@ -43,6 +43,10 @@ namespace esquema {
 
     public:
         Interpreter();
+
+    private:
+        Cell eval(Cell const & cell);
+        Cell eval(List const & list);
 
     private:
         Environment m_env;

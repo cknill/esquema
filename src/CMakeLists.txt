@@ -3,6 +3,7 @@ target_sources(
 PRIVATE
     interp.hh interp.cc
     lexer.hh lexer.cc
+    native_proc.hh native_proc.cc
     parser.hh parser.cc
     main.cc
 )

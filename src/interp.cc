@@ -1,5 +1,10 @@
 #include "interp.hh"
+#include "native_proc.hh"
 #include <numbers>
+#include <sstream>
+#include <stdexcept>
+
+#include <iostream>
 
 namespace {
     using namespace std::literals::string_literals;
@@ -7,8 +12,111 @@ namespace {
 
 namespace esquema {
     Cell Interpreter::eval(std::string_view src) {
-        auto cells = m_parser.parse(src);
-        return Nil{};
+        return eval(m_parser.parse(src));
+    }
+
+    Cell Interpreter::eval(Cell const & cell) {
+        if (cell.is_nil()) {
+            return cell;
+        }
+
+        else if (cell.is_number()) {
+            return cell;
+        }
+
+        else if (cell.is_symbol()) {
+            auto const & name = std::get<Symbol>(cell).value();
+            auto it = m_env.find(name);
+            if (it != m_env.end()) {
+                return it->second;
+            }
+            else {
+                return Nil{}; 
+            }
+        }
+
+        else if (cell.is_list()) {
+            return eval(std::get<List>(cell));
+        }
+
+        else {
+            return Nil{};
+        }
+    }
+
+    Cell Interpreter::eval(List const & list) {
+        if (list.empty()) {
+            return list;
+        }
+
+        // First try to handle the special forms
+        auto const & head = list.front();
+        if (head.is_symbol()) {
+            auto const & name = std::get<Symbol>(head).value();
+            if (name == "define") {
+                if (list.size() != 3) {
+                    throw std::runtime_error{"define requires two arguments"};
+                }
+
+                auto it = ++list.begin();
+                auto var = *it++;
+                if (!var.is_symbol()) {
+                    throw std::runtime_error{"define requires a symbol to bind to"};
+                }
+
+                m_env.insert(std::get<Symbol>(var), eval(*it));
+                return Nil{};
+            }
+
+            else if (name == "if") {
+                if (list.size() < 3) {
+                    throw std::runtime_error{"if requires either two or three arguments"};
+                }
+                auto it = ++list.begin();
+                auto cond = eval(*it++);
+                if (!cond.is_number()) {
+                    throw std::runtime_error{"if condition must evaluate to boolean"};
+                }
+
+                auto true_path = *it++;
+                auto false_path = Cell{};
+                if (list.size() == 4) {
+                    false_path = *it++;
+                }
+
+                if (std::get<Number>(cond).value()) {
+                    return eval(true_path);
+                }
+
+                else {
+                    eval(false_path);
+                }
+            }
+
+            else if (name == "begin") {
+                Cell result;
+                for (auto it = ++list.begin(); it != list.end(); ++it) {
+                    result = eval(*it);
+                }
+
+                return result;
+            }
+        }
+
+        // If we got here now we need to try and find
+        // the proc in environment
+        auto maybe_proc = eval(list.front());
+        if (maybe_proc.is_proc()) {
+            List args{};
+            for (auto it = ++list.begin(); it != list.end(); ++ it) {
+                args.push_back(eval(*it));
+            }
+
+            auto const & proc = std::get<Proc>(maybe_proc);
+            return proc(args, &m_env);
+        }
+
+        throw std::runtime_error{"Not a procedure"};
     }
 
     Interpreter::Interpreter()
@@ -18,10 +126,11 @@ namespace esquema {
 
     Environment Environment::make_global() {
         auto env = Environment{};
-        using env_ptr = std::shared_ptr<Environment>;
         env.m_inner = {{
-            { "pi"s, std::make_shared<Cell>(nullptr) },
-            { "e"s, std::make_shared<Cell>(nullptr) },
+            { "+"s, add }, { "-"s, sub }, { "*"s, mul }, { "/"s, div },
+            { "pi"s, Cell{Number{std::numbers::pi}}},
+            { "e"s, Cell{Number{std::numbers::e}} },
+            { "nil"s, Cell{Nil{}} },
         }};
 
         return env;
@@ -46,41 +155,28 @@ namespace esquema {
     }
 
     const_iterator Environment::find(Symbol const & sym) const noexcept {
-        auto it = m_inner.find(sym.value());
+        return find(sym.value());
+    }
+
+    const_iterator Environment::find(std::string const & name) const noexcept {
+        auto it = m_inner.find(name);
         if (it == std::end(m_inner) && m_outer) {
-           it = m_outer->find(sym); 
+            it = m_outer->find(name);
         }
 
         return it;
     }
 
     iterator Environment::insert(Symbol const & sym, Cell const & cell) {
-        auto ptr = std::make_shared<Cell>(cell);
-        auto [it, inserted] = m_inner.insert({sym.value(), ptr});
+        auto [it, inserted] = m_inner.insert({sym.value(), cell});
         if (!inserted) {
-            it->second = std::move(ptr);
+            it->second = cell;
         }
 
         return it;
     }
 
-    Environment::Environment(List const & syms, List const & cells, std::shared_ptr<Environment> outer)
-        : m_inner{}, m_outer{std::move(outer)}
-    {
-        auto cell_it = std::begin(cells);
-        for (auto sym_it = std::begin(syms); sym_it != std::end(syms); ++sym_it) {
-            if (!sym_it->is_symbol()) {
-                throw std::runtime_error{"Expected a symbol"};
-            }
-
-            m_inner.emplace(
-                std::get<Symbol>(*sym_it).value(), 
-                std::make_shared<Cell>(*cell_it++)
-            );
-        }
-    }
-
-    Environment::Environment(std::shared_ptr<Environment> outer)
-        : m_inner{}, m_outer{std::move(outer)}
+    Environment::Environment(Environment * outer)
+        : m_inner{}, m_outer{outer}
     { }
 }

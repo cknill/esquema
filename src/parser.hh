@@ -47,7 +47,7 @@ namespace esquema {
 
 
     class Environment;
-    using Proc = Cell(*)(List const &, std::shared_ptr<Environment>);
+    using Proc = Cell(*)(List const &, Environment *);
     std::ostream & operator<<(std::ostream & ostr, Proc);
 
 
