@@ -13,6 +13,10 @@ namespace {
 int main(int argc, char ** argv) {
     Interpreter interpreter{};
     std::string line;
+    std::cout << "Bienvenidos to the Esquema REPL \n"sv
+              << "type an expression to evaluate or type \n"sv 
+              << "':q' or use 'Ctrl+c' to quit\n"sv
+              << "----------------------------------------\n\n"sv;
     while (true) {
         auto quit = linenoise::Readline("esquema> ", line);
         if (quit) {
