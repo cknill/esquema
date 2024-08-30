@@ -1,12 +1,12 @@
 #ifndef ESQUEMA_PARSER_HH_INCLUDED
 #define ESQUEMA_PARSER_HH_INCLUDED
 
+#include "ci_string.hh"
 #include "lexer.hh"
 #include <iosfwd>
 #include <list>
 #include <memory>
 #include <optional>
-#include <string>
 #include <variant>
 
 namespace esquema {
@@ -19,11 +19,11 @@ namespace esquema {
 
     // Operators
     public:
-        bool operator==(std::string_view value) const noexcept;
+        bool operator==(CIStringView value) const noexcept;
 
     // Interface
     public:
-        std::string const & value() const noexcept;
+        CIString const & value() const noexcept;
 
     // Constructors
     public:
@@ -31,7 +31,7 @@ namespace esquema {
 
     // Data
     private:
-        std::string m_value;
+        CIString m_value;
     };
 
     // Bool in Scheme is any of: #t, #T, #f, #F. Other

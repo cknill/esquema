@@ -3,6 +3,7 @@
 target_sources(
     esquema_lib
 PUBLIC
+    ci_string.hh ci_string.cc
     interp.hh interp.cc
     lexer.hh lexer.cc
     native_proc.hh native_proc.cc

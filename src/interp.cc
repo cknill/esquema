@@ -7,7 +7,7 @@
 #include <iostream>
 
 namespace {
-    using namespace std::literals::string_literals;
+    using namespace esquema::literals::ci_string_literals;
 }
 
 namespace esquema {
@@ -133,13 +133,13 @@ namespace esquema {
     Environment Environment::make_global() {
         auto env = Environment{};
         env.m_inner = {{
-            { "+"s, add }, { "-"s, sub }, 
-            { "*"s, mul }, { "/"s, div },
-            { "<"s, less }, { "<="s, less_equal }, 
-            { ">"s, greater }, { ">="s, greater_equal },
-            { "eqv?"s, equal }, { "not", negate }, 
-            { "pi"s, Cell{Number{std::numbers::pi}} },
-            { "e"s, Cell{Number{std::numbers::e}} },
+            { "+"_cis, add }, { "-"_cis, sub }, 
+            { "*"_cis, mul }, { "/"_cis, div },
+            { "<"_cis, less }, { "<="_cis, less_equal }, 
+            { ">"_cis, greater }, { ">="_cis, greater_equal },
+            { "eqv?"_cis, equal }, { "not"_cis, negate }, 
+            { "pi"_cis, Cell{Number{std::numbers::pi}} },
+            { "e"_cis, Cell{Number{std::numbers::e}} },
         }};
 
         return env;
@@ -165,7 +165,7 @@ namespace esquema {
         return find(sym.value());
     }
 
-    Environment::const_iterator Environment::find(std::string const & name) const noexcept {
+    Environment::const_iterator Environment::find(CIString const & name) const noexcept {
         auto it = m_inner.find(name);
         if (it == std::end(m_inner) && m_outer) {
             it = m_outer->find(name);

@@ -107,16 +107,16 @@ namespace esquema {
         return ostr << sym.m_value;
     }
 
-    bool Symbol::operator==(std::string_view value) const noexcept {
+    bool Symbol::operator==(CIStringView value) const noexcept {
         return m_value == value;
     }
 
-    std::string const & Symbol::value() const noexcept {
+    CIString const & Symbol::value() const noexcept {
         return m_value;
     }
 
     Symbol::Symbol(std::string_view value)
-        : m_value{value}
+        : m_value{value.data(), value.size()}
     { }
 
     std::ostream & operator<<(std::ostream & ostr, Bool const & bool_) {

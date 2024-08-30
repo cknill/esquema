@@ -178,7 +178,6 @@ namespace esquema {
             result = std::get<Bool>(lhs).value() == std::get<Bool>(rhs).value();
         }
 
-        // TODO - this needs to be case insensitive
         else if (lhs.is_symbol() && rhs.is_symbol()) {
             result = std::get<Symbol>(lhs).value() == std::get<Symbol>(rhs).value();
         }

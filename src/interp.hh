@@ -22,7 +22,7 @@ namespace esquema {
     // this so keep it private
     private:
         using container_type = std::unordered_map<
-            std::string, Cell
+            CIString, Cell
         >;
 
     // Interface
@@ -42,7 +42,7 @@ namespace esquema {
     // More Interface
     public:
         const_iterator find(Symbol const & symbol) const noexcept;
-        const_iterator find(std::string const & name) const noexcept;
+        const_iterator find(CIString const & name) const noexcept;
 
         // Care must be taken with this as it can prevent the lookup
         // of symbols in enclonsing Environments if they have the
