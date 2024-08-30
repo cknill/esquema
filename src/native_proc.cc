@@ -1,5 +1,5 @@
 #include "native_proc.hh"
-#include "interp.hh"
+#include "environ.hh"
 
 #include <sstream>
 #include <stdexcept>

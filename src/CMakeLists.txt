@@ -3,11 +3,14 @@
 target_sources(
     esquema_lib
 PUBLIC
+    ast.hh ast.cc
     ci_string.hh ci_string.cc
+    environ.hh environ.cc
     interp.hh interp.cc
     lexer.hh lexer.cc
     native_proc.hh native_proc.cc
     parser.hh parser.cc
+    token.hh token.cc
 )
 
 # Look in this directory for headers

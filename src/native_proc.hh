@@ -1,7 +1,7 @@
 #ifndef ESQUEMA_NATIVE_PROCS_HH_INCLUDED
 #define ESQUEMA_NATIVE_PROCS_HH_INCLUDED
 
-#include "parser.hh"
+#include "ast.hh"
 
 namespace esquema {
     // Here we have the builtin procedures that
